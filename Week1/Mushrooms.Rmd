@@ -1,0 +1,113 @@
+---
+title: "Mushrooms"
+author: "J John"
+date: "August 29, 2018"
+output:
+  
+  html_document:
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+col_names<- c('class','cap-shape','cap-surface','cap-color','bruises','odor','gill-attachment'
+          ,'gill-spacing','gill-size','gill-color','stalk-shape'
+          ,'stalk-root','stalk-surface-above-ring',
+          'stalk-surface-below-ring', 'stalk-color-above-ring',
+          'stalk-color-below-ring','veil-type','veil-color',
+          'ring-number','ring-type','spore-print-color','population',
+          'habitat')
+
+cap_colors <- c('n' ='brown','b' ='buff','c' ='cinnamon','g'='gray','r'='green',
+               'p'='pink','u'='purple','e'='red','w'='white','y'='yellow')
+
+habitats<- c('g'='grasses','l'='leaves','m'='meadows','p'='paths',
+               'u'='urban','w'='waste','d'='woods')
+
+odors <- c('a'='almond','l'='anise','c'='creosote','y'='fishy','f'='foul',
+             'm'='musty','n'='none','p'='pungent','s'='spicy')
+
+class <- c('e'='Edible','p'='Poisonous') 
+
+
+
+```
+
+## R Markdown
+## Load Data
+Load mushrooms data from the site, rename columns and change values for cap color, odor, class and habitat
+
+```{r }
+dataFile <-'https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data'
+mushrooms <-read.csv(file=dataFile, header=FALSE, sep=",",  )
+names(mushrooms)<-col_names
+levels(mushrooms$`cap-color`)<-cap_colors
+levels(mushrooms$habitat)<-habitats
+levels(mushrooms$odor)<-odors
+levels(mushrooms$class)<-class
+```
+
+## Data Summary 
+ 
+```{r mushroom}
+dim(mushrooms)
+##Coulmn Names
+names(mushrooms)
+## Summary for cap Color, Odor, Class and Habitat
+mushroom_summary <- data.frame(mushrooms$class, mushrooms$`cap-color`, mushrooms$odor, mushrooms$habitat)
+summary.data.frame(mushroom_summary)
+```
+
+## Color Distribution
+```{r mushrooms, colors, echo=FALSE}
+cap_color <- table( mushrooms$`cap-color`)
+cap_color
+barplot(cap_color,xlab="Color",col=c('skyblue'))
+```
+
+## Odor Distribution
+```{r mushrooms, odor, echo=FALSE}
+ordor_table <- table(mushrooms$`odor`)
+ordor_table
+barplot(ordor_table,xlab="Odor",col=c('skyblue'))
+```
+
+## Class Distribution
+```{r mushrooms, class, echo=FALSE}
+class_table<-table(mushrooms$`class`)
+class_table
+barplot(class_table,xlab="Class", col=c("darkgreen","red"))
+```
+
+## Class and Odor 
+```{r mushrooms, odor, class, echo=FALSE}
+class_odor <- table(mushrooms$class, mushrooms$odor)
+class_odor
+barplot(class_odor, 
+        xlab="Odor", col=c("darkgreen","red"),
+        beside = TRUE, legend = rownames(class_odor)) 
+```
+
+## Class and Habitat 
+```{r mushrooms, habitat, class, echo=FALSE}
+class_habitat <- table(mushrooms$class, mushrooms$habitat)
+class_habitat
+barplot(class_habitat,
+        xlab="Habitat", col=c("darkgreen","red"),
+        beside=TRUE , legend = rownames(class_habitat)) 
+```
+
+## Class and Cap Color
+```{r mushrooms, colors, class, echo=FALSE}
+class_cap_Color <- table(mushrooms$class, mushrooms$`cap-color`)
+class_cap_Color
+barplot(class_cap_Color,
+        xlab="Cap Color", col=c("darkgreen","red"),
+         beside=TRUE, legend = rownames(class_cap_Color)) 
+
+```
+
+
+

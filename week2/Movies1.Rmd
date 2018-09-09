@@ -1,0 +1,92 @@
+---
+title: "Movies SQL Lite Version"
+author: "J John"
+date: "Sept 6, 2018"
+output:
+  
+  html_document:
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+
+## Load SQL Lite Library
+ 
+```{r }
+library(RSQLite)
+library(knitr)
+sqlite <- dbDriver("SQLite")
+```
+
+## Create db file and table
+ 
+```{r CreateDatabase, eval= TRUE}
+getwd()
+con <- dbConnect(sqlite, "MovieRatings1.db")
+columns <-c('Name'='Varchar(100)','Rating'='Number' )
+if(dbExistsTable(con,"Movies"))
+  dbRemoveTable(con, "Movies")  
+dbCreateTable(con, "Movies",columns )
+```
+
+## Begin new transaction and insert rows
+
+```{r insertData, eval= TRUE}
+m <- data.frame(Name =rep('PADDINGTON 2' , each = 4) , Rating = c(5,4.5,5,2.5))
+m2 <- data.frame(Name =rep('BLACK PANTHER' , each = 6) , Rating = c(3.5,4,4.5,3,4,3.5))
+m3 <- data.frame(Name =rep('MISSION: IMPOSSIBLE - FALLOUT 2' , each = 6) , Rating = c(5,4,5,4.5,3.5,5))
+m4 <- data.frame(Name =rep('INCREDIBLES 2' , each = 6) , Rating = c(3,5,4,5,4,3.5))
+m5 <- data.frame(Name =rep('CRAZY RICH ASIANS' , each = 7) , Rating = c(5,4,5,4.5,4,4,3.5))
+m6 <- data.frame(Name =rep('AVENGERS: INFINITY WAR' , each = 8) , Rating = c(4.5,5,3.5,4.5,4,4.5,3.5,3))
+dbBegin(con)
+dbWriteTable(con, 'MovieRatings', m, append =T)
+dbWriteTable(con, 'MovieRatings', m2, append =T)
+dbWriteTable(con, 'MovieRatings', m3, append =T)
+dbWriteTable(con, 'MovieRatings', m4, append =T)
+dbWriteTable(con, 'MovieRatings', m5, append =T)
+dbWriteTable(con, 'MovieRatings', m6, append =T)
+dbCommit(con)
+movies <- dbReadTable(con, 'MovieRatings')
+head(movies)
+```
+
+## Select movie names using SQL
+ 
+```{r selectMovieNames, eval= TRUE}
+movieNames <- 'select distinct name from MovieRatings'
+dbGetQuery(con, movieNames)
+```
+## Numbers of ratings per movie
+ 
+```{r ratingsPerMoive, eval= TRUE}
+ratingsPerMoive<- 'select name, count(Rating) as [Number of Ratings] from MovieRatings group by name'
+dbGetQuery(con, ratingsPerMoive)
+```
+## Highest rating per  movie
+ 
+```{r highestRatedMoive, eval= TRUE}
+highest_rating_per_movie <- 'select name, max(Rating) as [Number of Ratings] from MovieRatings group by name'
+dbGetQuery(con, highest_rating_per_movie)
+```
+## Lowest rating per movie
+ 
+```{r lowestRatedMovie, eval= TRUE}
+lowest_rating_per_movie <- 'select name, min(Rating) as [Number of Ratings] from MovieRatings group by name'  
+dbGetQuery(con, lowest_rating_per_movie)
+```
+
+## Most reviewd movie
+ 
+```{r mostReviewMovie, eval= TRUE}
+leastReviews<- 'select name, max(ratings) as [Number of Ratings] from (select name, count(Rating) as ratings from movieRatings  group by name)'
+dbFetch(dbSendQuery(con ,leastReviews))
+```
+
+
+## Least reviewd movie
+ 
+```{r leastReviewMovie, eval= TRUE}
+leastReviews<- 'select name, min(ratings) as[Number of Ratings] from (select name, count(Rating) as ratings from movieRatings  group by name)'
+dbFetch(dbSendQuery(con ,leastReviews))
+```

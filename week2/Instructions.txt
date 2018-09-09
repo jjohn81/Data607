@@ -1,0 +1,9 @@
+I have created two rmd files. One for using SQL lite and another one for My SQL. 
+
+SQL Lite version:
+	 creates a local db file and creates a table from R. It then loads data from R and executes few sql statments.
+
+My Sql version
+	Sql file has the SQL statements to create schema and to create two tables. It also contains sql insert staments.
+	Sql file also creates a user called data607a and grants permissions.
+	From R, I am executing few SQL statments to retrieve data.

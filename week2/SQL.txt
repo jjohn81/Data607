@@ -1,0 +1,79 @@
+create schema movie_ratings;
+
+use  movie_ratings;
+
+
+CREATE TABLE `movies` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `genre` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `movieratings` (
+  `movie_id` int(11) DEFAULT NULL,
+  `Rating` double NOT NULL,
+  KEY `movie_id_idx` (`movie_id`),
+  CONSTRAINT `movie_id` FOREIGN KEY (`movie_id`) REFERENCES `movies` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+create USER 'data607a'@'localhost' IDENTIFIED WITH mysql_native_password BY 'data607a'; 
+GRANT ALL ON movie_ratings.* TO 'data607a'@'localhost';
+
+insert into movies(id,name,genre) values(1,'PADDINGTON 2','Animation');
+
+insert into movies(id,name,genre) values(2,'BLACK PANTHER','SCI-FI');
+
+insert into movies(id,name,genre) values(3,'MISSION: IMPOSSIBLE - FALLOUT 2','Action');
+
+insert into movies(id,name,genre) values(4,'INCREDIBLES 2','Animation');
+
+insert into movies(id,name,genre) values(5,'CRAZY RICH ASIANS','Comedy');
+
+insert into movies(id,name,genre) values(6,'AVENGERS: INFINITY WAR','SCI-FI'); 
+
+insert into movieratings(movie_id,rating) values(1,5);
+insert into movieratings(movie_id,rating) values(1,4.5);
+insert into movieratings(movie_id,rating) values(1,5);
+insert into movieratings(movie_id,rating) values(1,2.5);
+insert into movieratings(movie_id,rating) values(1,5);
+
+insert into movieratings(movie_id,rating) values(2,3.5);
+insert into movieratings(movie_id,rating) values(2,4);
+insert into movieratings(movie_id,rating) values(2,4.5);
+insert into movieratings(movie_id,rating) values(2,3);
+insert into movieratings(movie_id,rating) values(2,4);
+insert into movieratings(movie_id,rating) values(2,3.5);
+
+
+insert into moviratings(movie_id,rating) values(3,5);
+insert into movieratings(movie_id,rating) values(3,4);
+insert into movieratings(movie_id,rating) values(3,5);
+insert into movieratings(movie_id,rating) values(3,4.5);
+insert into movieratings(movie_id,rating) values(3,3.5);
+insert into movieratings(movie_id,rating) values(3,5);
+
+insert into movieratings(movie_id,rating) values(4,3);
+insert into movieratings(movie_id,rating) values(4,5);
+insert into movieratings(movie_id,rating) values(4,4);
+insert into movieratings(movie_id,rating) values(4,5);
+insert into movieratings(movie_id,rating) values(4,4);
+insert into movieratings(movie_id,rating) values(4,3.5);
+
+insert into movieratings(movie_id,rating) values(5,5);
+insert into movieratings(movie_id,rating) values(5,4);
+insert into movieratings(movie_id,rating) values(5,5);
+insert into movieratings(movie_id,rating) values(5,4.5);
+insert into movieratings(movie_id,rating) values(5,4);
+insert into movieratings(movie_id,rating) values(5,4);
+insert into movieratings(movie_id,rating) values(5,3.5);
+
+insert into movieratings(movie_id,rating) values(6,4.5);
+insert into movieratings(movie_id,rating) values(6,5);
+insert into movieratings(movie_id,rating) values(6,3.5);
+insert into movieratings(movie_id,rating) values(6,3.5);
+insert into movieratings(movie_id,rating) values(6,4.5);
+insert into movieratings(movie_id,rating) values(6,4);
+insert into movieratings(movie_id,rating) values(6,4.5);
+insert into movieratings(movie_id,rating) values(6,3);
+ 
+  

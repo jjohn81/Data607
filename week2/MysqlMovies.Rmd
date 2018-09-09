@@ -1,0 +1,122 @@
+---
+title: "Movie ratings MySQL Version"
+author: "J John"
+date: "Sept 6, 2018"
+output:
+  
+  html_document:
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+
+## Load Library
+ 
+```{r }
+library(RMySQL)
+library(knitr)
+```
+
+## Connect to the movie ratings database
+ 
+```{r CreateDatabase, eval= TRUE}
+ con = dbConnect(MySQL(), user='data607a', password='data607a', dbname='movie_ratings', host='localhost')
+```
+
+## Read movies tables and display
+
+```{r readTable, eval= TRUE}
+
+movies <- dbReadTable(con, 'movies')
+#Structure
+str(movies)
+movies
+```
+
+## Select movie names using SQL
+ 
+```{r selectMovieNames, eval= TRUE}
+movieNames <- 'select distinct name from movies'
+dbGetQuery(con, movieNames)
+```
+## Numbers of ratings per movie
+ 
+```{r ratingsPerMoive, eval= TRUE}
+ratingsPerMoive<- 'SELECT 
+    name, COUNT(*) as NumReviews
+FROM
+    movies
+        JOIN
+    movieratings ON movies.id = movieratings.movie_id
+GROUP BY movies.name'
+dbGetQuery(con, ratingsPerMoive)
+```
+## Highest rating per  movie
+ 
+```{r highestRatedMoive, eval= TRUE}
+highest_rating_per_movie <- 'SELECT 
+    name, max(movieratings.rating) as Rating
+FROM
+    movies
+        JOIN
+    movieratings ON movies.id = movieratings.movie_id
+GROUP BY movies.name'
+dbGetQuery(con, highest_rating_per_movie)
+```
+## Lowest rating per movie
+ 
+```{r lowestRatedMovie, eval= TRUE}
+lowest_rating_per_movie <- 'SELECT 
+    name, min(movieratings.rating) as Rating
+FROM
+    movies
+        JOIN
+    movieratings ON movies.id = movieratings.movie_id
+GROUP BY movies.name'  
+dbGetQuery(con, lowest_rating_per_movie)
+```
+## Average rating per movie
+ 
+```{r average_rating_per_movie, eval= TRUE}
+average_rating_per_movie <- 'SELECT 
+    name, avg(movieratings.rating)  as AverageRating
+FROM
+    movies
+        JOIN
+    movieratings ON movies.id = movieratings.movie_id
+GROUP BY movies.name'  
+dbGetQuery(con, average_rating_per_movie)
+```
+## Most reviewd movie
+ 
+```{r mostReviewMovie, eval= TRUE}
+leastReviews<- 'SELECT  
+    name, count(*)  as NumReviews
+    
+FROM
+    movies
+        JOIN
+    movieratings ON movies.id = movieratings.movie_id
+GROUP BY movies.name 
+order by  count(*) desc
+LIMIT 1'
+dbFetch(dbSendQuery(con ,leastReviews))
+```
+
+
+## Least reviewd movie
+ 
+```{r leastReviewMovie, eval= TRUE}
+leastReviews<- 'SELECT  
+    name, count(*) as NumReivews
+    
+FROM
+    movies
+        JOIN
+    movieratings ON movies.id = movieratings.movie_id
+GROUP BY movies.name 
+order by  count(*) asc
+LIMIT 1'
+dbFetch(dbSendQuery(con ,leastReviews))
+```

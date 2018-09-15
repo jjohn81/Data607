@@ -1,0 +1,131 @@
+---
+title: "Regular Expression"
+author: "J John"
+date: "Sept 13, 2018"
+output:
+  
+  html_document:
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+
+## Load libraries
+ 
+```{r }
+library(stringr)
+```
+
+## Extract Names
+ 
+```{r CreateDatabase, eval= TRUE}
+ raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+
+names <- str_extract_all(raw.data, "[[:alpha:]., ]{2,}")
+names
+```
+
+
+## Rearrange names
+
+```{r re_arrange_names, eval= TRUE}
+fix_names <- function(x){
+  if(str_detect(x,',') == TRUE)
+    return( paste(sub('.*,','' ,x), sub(',.*','' ,x)))
+  else
+    return(x)
+}
+  
+vapply(unlist(names),fix_names ,'',USE.NAMES =  FALSE)
+
+#using split 
+
+fix_names_split <- function(x){
+  if(str_detect(x,',') == TRUE){
+    split_names <- unlist(str_split(x,','))
+    return(paste(split_names[2], split_names[1]))
+  }
+  else
+    return(x)
+}
+  
+vapply(unlist(names),fix_names_split ,'',USE.NAMES =  FALSE)
+
+```
+
+## Characters with Title
+
+```{r char_with_titlt, eval= TRUE}
+vapply(unlist(names), function(name) str_detect(name,"[[:alpha:]]{2,3}[.] [[:alpha:]]+"),T,USE.NAMES = TRUE) 
+```
+
+## Characters with second name
+
+```{r char_with_second_name, eval= TRUE}
+vapply(unlist(names), function(name) str_detect(name,"\\b[[:alpha:]]{1}[.]"),T,USE.NAMES = TRUE) 
+```
+
+## '[0-9]+\\$' . One or more digits, ends with $
+```{r regex, eval = TRUE}
+
+regex <-'[0-9]+\\$' #One or more digits ends with $
+
+strs<-c('123$','$123','123','1$','$','1$$','1$3')
+vapply(strs, function(x) str_detect(x, regex),T)
+
+```
+
+## '\\b[a-z]{1,4}\\b'. One to four small letters 
+```{r regex1, eval = TRUE}
+regex <-'\\b[a-z]{1,4}\\b'
+
+# one to four small letters 
+
+strs<-c('a','aa','A','AA','abcd','abcde','AaaA')
+vapply(strs, function(x) str_detect(x, regex),T)
+```
+
+## '.*?\\.txt$'. String ends with .txt
+```{r regex2, eval = TRUE}
+regex <-'.*?\\.txt$'
+
+# string ends with .txt
+
+strs<-c('a.txt','a.b.txt','a.b.c.txt','...txt','a...txt','a....txt','txt','.txt','.txt a')
+vapply(strs, function(x) str_detect(x, regex),T)
+```
+
+## '\\d{2}/. \\d{2}/\\d{4}'. Like date format.  2 digits  /  2 digits  /  4 digits
+```{r regex3, eval = TRUE}
+regex <-'\\d{2}/\\d{2}/\\d{4}'
+
+# like Date format.  2 digits  /  2 digits  /  4 digits
+
+strs<-c('11/12/2018','2/2/18','11/2/2018','2/11/2018','11/22/18','99/99/9999')
+vapply(strs, function(x) str_detect(x, regex),T)
+```
+
+## '<(.+?)>.+?</\\1>'. Like html tag. 
+```{r regex4, eval = TRUE}
+regex <-'<(.+?)>.+?</\\1>'
+
+#html tag 
+
+strs<-c('<b>a</b>','<b>a</B>','<>a</>','<b>1</>', '<a>xyz</b>')
+vapply(strs, function(x) str_detect(x, regex),T)
+
+```
+## Bonus
+```{r bonus, eval = TRUE}
+sec_msg <- "clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0Tanwo
+Uwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigO
+d6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5
+fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
+
+msg <- unlist(str_extract_all(sec_msg, "[[:upper:].]{1,}"))
+
+msg <- str_replace_all(paste(msg, collapse = ''), "[.]", " ")
+
+msg
+```

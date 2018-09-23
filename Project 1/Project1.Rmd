@@ -1,0 +1,148 @@
+---
+title: "Project 1"
+author: "J John"
+date: "Sep 20, 2018"
+output: html_document
+---
+
+## Load Package
+1. Read all lines. 
+2. Remove lines arent required, like --- lines.
+3. Split the lines into two lists. One for the rounds info and another with pregame and state     info.
+4. Using regular expression parse all required items and store them in indiviudal lists. All 
+   individual lists must have 64 items, one per player. I am showing length of the lists to       make sure all lists are of the same size. 
+5. Use the iniviudal lists to create a data frame and write that to the file. 
+
+```{r}
+require(stringr)
+```
+
+## Load data and clean up
+
+```{r read_file}
+
+#Load data from the file using readlines. 
+raw_file_lines <- readLines('tournamentinfo.txt', warn = F)
+
+#Remove anything that are not letters and numbers,  like "----"
+file_lines <- subset(raw_file_lines, str_detect(raw_file_lines,'[[:alnum:]]'))
+
+```
+
+## Data Summary 
+ 
+```{r file_summary}
+
+#Summary of the original file. Orginal file contains 196 lines including "---"lines.
+summary(raw_file_lines)
+
+
+#Summary of the lines after removing "----" lines
+summary(file_lines)
+
+```
+
+## Parse lines
+```{r parse_lines, echo= TRUE}
+#Split and store the lines into two different lists statrting at line 4 and 3. 
+#Player row contains rounds information
+player_row <-str_split(file_lines[seq(3, length(file_lines), by=2)], '[|]')
+head(player_row, n=1)
+
+#Ratings row contains all pre game player ratings and state
+ratings_row <-str_split(file_lines[seq(4, length(file_lines), by=2)], '[|]')
+head(ratings_row, n = 1)
+
+#Both lists are of the same size.
+length(ratings_row)
+length(player_row)
+```
+
+##Player names
+```{r palyer_names, echo= TRUE}
+#Get the player names from the second column.
+names <-unlist(lapply(player_row, function(x)str_trim(x[2])))
+head(names)
+# Number of players
+length(names)
+```
+
+## Player total points
+```{r palyer_points, echo= TRUE}
+# Get the total points for the player. 
+player_points <- as.numeric(unlist(lapply(player_row, function(x)x[3])))
+
+head(player_points)
+length(player_points)
+```
+
+## Player states
+```{r palyer_states, echo= TRUE}
+
+#Get player state.
+state <- unlist(lapply(ratings_row, function(x)str_trim(x[1])))
+
+head(state)
+length(state)
+```
+
+## Player pre ratings
+```{r palyer_ratings, ratings_row, echo= TRUE}
+
+# Second colums contains the pre ratings
+ratings_col <-  unlist(lapply(ratings_row, function(x)x[2]))
+
+head(ratings_col)
+length(ratings_col)
+
+#Get the pre-rating using regular expression.
+player_ratings<-unlist(lapply(ratings_col, function(x) as.numeric(str_extract( str_extract(x,":\\s*\\d{1,}"),"\\d{1,}"))))
+
+head(player_ratings)
+
+length(player_ratings)
+```
+## Opponents rating
+```{r palyer_points,games_row, echo= TRUE}
+
+# Get the rounds player played from column 4 to 10.
+player_rounds <- lapply(player_row, function(x)x[c(4:10)])
+head(player_rounds, n = 1)
+length(player_rounds)
+
+#Get the oppoents Id using regular experession
+opponents<-lapply(player_rounds, function(x)unlist(str_extract_all(x,'\\d{1,}')))
+head(opponents , n =1)
+length(opponents)
+
+#Calculate opponents pre rating.
+opponents_ratings <- vapply(opponents, 
+                            function(x) round(sum(player_ratings[ as.numeric( unlist(x))])/length(x)),FUN.VALUE = c(0)) 
+
+head(opponents_ratings, n =1)
+length(opponents_ratings)
+```
+
+## Create a data frame and view summary
+```{r create_df, echo= TRUE}
+df <-data.frame(names, state,player_points,player_ratings, opponents_ratings)
+names(df)<-c('Name','State','Total Points','Pre-Rating','Average Pre-Rating of Opponents')
+nrow(df)
+head(df)
+
+```
+
+## Write to file
+```{r write_to_file, echo= TRUE}
+write.table(df,'output.txt',   quote = FALSE, sep = ',', row.names = FALSE)
+```
+
+## Read the file 
+```{r read_out_put_fiile, echo = TRUE}
+data <-read.csv('output.txt')
+
+head(data, n =10)
+nrow(data)
+```
+
+

@@ -1,0 +1,111 @@
+---
+title: "Tidy Data / Week5"
+author: "J John"
+date: "Sept 28, 2018"
+output:
+  
+  html_document:
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+ 
+```{r eval= T, echo = FALSE, message=FALSE}
+
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+```
+
+### Read and transform data
+ 
+```{r read_file, eval= TRUE}
+
+airline_data <- read.csv('flightdata.txt')
+
+#wide format data
+airline_data
+
+#long format data
+airline_data_long <- airline_data %>% 
+gather( 3:7, key="airport", value = "num_of_flights")
+airline_data_long 
+
+# Number of flights
+sum(airline_data_long$num_of_flights)
+
+#Flights by airline
+groupby_airline <- group_by(airline_data_long, airline)
+
+summarise(groupby_airline, sum(num_of_flights))
+
+ggplot(data = groupby_airline, aes(x = airline, y= num_of_flights, fill = airline)) +
+    geom_bar(stat="identity", position=position_dodge())
+#flights by airport
+group_by_airport <- airline_data_long %>%group_by(airport)
+
+summarise(group_by_airport, sum(num_of_flights))
+
+ggplot(data = group_by_airport, aes(x = airport, y = num_of_flights, fill = airport)) +
+    geom_bar(stat ="identity", position = position_dodge())
+
+#flights by airline, airport
+groupby_airline_airport <- group_by(airline_data_long, airline, airport)
+
+summarise(groupby_airline_airport, sum(num_of_flights))
+ggplot(data = groupby_airline_airport, aes(x = airport, y = num_of_flights, fill = airline)) +
+    geom_bar(stat ="identity", position = position_dodge())
+
+#flights by status
+groupby_status <- group_by(airline_data_long, status)
+
+summarise(groupby_status, sum(num_of_flights))
+ggplot(data = groupby_status, aes(x = status, y = num_of_flights, fill = status)) +
+    geom_bar(stat ="identity", position = position_dodge())
+
+ 
+ 
+#flights by status and airport
+groupby_status_airport <- group_by(airline_data_long,airport, status)
+
+summarise(groupby_status_airport, sum(num_of_flights))
+ggplot(data = groupby_status_airport, aes(x = airport, y = num_of_flights, fill = status)) +
+    geom_bar(stat ="identity", position = position_dodge())
+ 
+
+```
+
+
+
+
+```{r re_arrange_names, eval= TRUE}
+#fligths per airport by airline
+groupby_airport <- group_by(airline_data_long, airline, airport)
+summarise(groupby_airport, sum(num_of_flights))
+
+ggplot(data=groupby_airport, aes(x=airport, y= num_of_flights, fill=airline)) +
+    geom_bar(stat="identity", position=position_dodge())
+```
+
+
+
+
+```{r final , eval = TRUE}
+#delayed vs on time %
+spread_delay_ontime <- airline_data_long %>%
+    spread(key = status , value = num_of_flights)
+
+spread_delay_ontime_percentage <- spread_delay_ontime%>% 
+  mutate(
+         ontime_percentage = round((ontime / (delayed + ontime)) *100),
+         delayed_percentage = round((delayed / (delayed + ontime)) * 100)
+         )
+
+spread_delay_ontime_percentage
+
+ggplot(airline_data_long, aes(x = status, y = (num_of_flights), fill = status)) +
+  geom_bar(stat="identity")+
+  facet_grid(airline ~ airport)
+ 
+```

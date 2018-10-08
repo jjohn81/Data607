@@ -1,0 +1,158 @@
+---
+title: "Project 2 - Dataset #2"
+author: "J John"
+date: "Oct 10, 2018"
+output: html_document
+---
+I am using the below dataset, "Baby Names from Social Security Card Applications - National Level Data"
+
+    https://catalog.data.gov/dataset/baby-names-from-social-security-card-applications-national-level-data
+
+Data for each year is stored in a different text file. I am only analyzing data from 2000-2017 but this logic
+will handle all the files in the folder.
+
+
+#### Load Package
+
+```{r message = FALSE}
+library(tidyverse)
+require(stringr)
+library(kableExtra)
+```
+
+#### Load data 
+
+```{r read_file}
+
+col_names <- c('name', 'sex', 'count', 'year' )
+
+# This is used to store all  names from all  files. 
+Names <- data.frame()
+
+
+# This funciton will read the file and append names to "Names" varible outside the function. 
+read_files <- function(file_name){
+    
+  x <- read.csv(file_name, header = F, stringsAsFactors =  F) %>%  
+      mutate(year = as.numeric( str_extract(file_name,'\\d+')))
+  
+  Names <<-  bind_rows(x,Names)
+  
+  return('')  
+}
+
+# Read names from all the files with "yob" in the file name.
+filenames <- list.files( pattern="yob", full.names=TRUE)
+jx <- lapply(filenames, FUN = read_files)
+
+colnames(Names)<- col_names
+
+boys_names <- Names %>%
+  filter(sex =='M') 
+
+
+girls_names <- Names %>%
+  filter(sex =='F') 
+```
+
+#### 2017 Top 10 Names
+ 
+```{r top10_2017}
+
+popular_names_17_boys <- boys_names %>% 
+            filter(year == 2017) %>%
+            top_n(10, count) %>%
+            select(name, count,sex)
+
+popular_names_17_girls <- girls_names %>% 
+  filter(year == 2017) %>%
+  top_n(10,count) %>%
+  select(name, count,sex) 
+
+top_names_17 <- data.frame(popular_names_17_girls$name, popular_names_17_boys$name)
+colnames(top_names_17) <- c("Girls","Boys")
+
+  kable(top_names_17) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+### 2017 popular names over the years.
+  
+      These plots show the popularity of the names over the last 17 years. Names like Jacob are becoming less popular while Liam and other names becoming more popular. This is also happening with girl's name.    
+```{r}
+popular_names_17_boys_trend <- Names %>% inner_join(popular_names_17_boys, by =c ('name','sex'))
+popular_names_17_girls_trend <- Names %>% inner_join(popular_names_17_girls, by =c ('name','sex'))
+
+popular_names_17_boys_trend <- Names %>% inner_join(popular_names_17_boys, by =c ('name','sex'))
+popular_names_17_girls_trend <- Names %>% inner_join(popular_names_17_girls, by =c ('name','sex'))
+
+ggplot(popular_names_17_boys_trend, aes(x= year, y= count.x, color = name)) + 
+  geom_line()+
+geom_text(data = popular_names_17_boys_trend %>% filter(year == last(year)), aes(label = name, 
+                                                                                                x = year + 0.5, 
+                                                                                                y = count.x, 
+                                                                                                color = name)) 
+ggplot(popular_names_17_girls_trend, aes(x= year, y= count.x, color = name)) + 
+  geom_line()+
+geom_text(data = popular_names_17_girls_trend %>% filter(year == first(year)), aes(label = name, 
+                                                                       x = year + 0.5, 
+                                                                       y = count.x, 
+                                                                       color = name)) 
+      
+```
+
+#### Top 5 names per year over the years
+
+    Looking at the top 5 names for boys and girls per year from 2000 to 2017 shows the same patter as above.  
+    
+
+```{r}
+# Top five names over the years
+top_five_boys <- boys_names %>%
+  group_by(year) %>%
+  top_n(5,count) %>%
+  select(name)
+
+# Get the distinct top names over the years. For example, Jacob was a popular name for many years.
+top_boy_names <-data.frame(top_five_boys$name) %>% distinct()
+colnames(top_boy_names)<-c('name')
+top_five_boys_per <- boys_names %>% inner_join(top_boy_names, by =c ('name'))
+
+
+
+top_five_girls <- girls_names %>%
+  group_by(year) %>%
+  top_n(5,count) %>%
+  select(name)
+
+top_girl_names <-data.frame(top_five_girls$name) %>% distinct()
+colnames(top_girl_names)<-c('name')
+top_five_grils_per <- girls_names %>% inner_join(top_girl_names, by =c ('name'))
+
+
+top_names<- c(top_girl_names, top_boy_names)
+
+  kable(top_names) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+  
+ggplot(top_five_boys_per, aes(x= year, y = count, color = name)) + 
+  geom_line() +
+geom_text(data = top_five_boys_per %>% filter(year == last(year)), aes(label = name, 
+                                                                                 x = year + 0.5, 
+                                                                                 y = count, 
+                                                                                 color = name)) 
+
+ggplot(top_five_grils_per, aes(x= year, y= count, color = name)) + 
+  geom_line()+
+geom_text(data = top_five_grils_per %>% filter(year == first(year)), aes(label = name, 
+                                                                                   x = year + 0.5, 
+                                                                                   y = count, 
+                                                                                   color = name)) 
+
+
+```
+
+
+Popular names like Jacob, Michael, Matthew and Joshua  from early 2000's  are loosing popularity while less popular names like Jayden, Liam, Mason and Logan are gaining popularity or are even more popular.  For example, Jacob really popular in early 2000s while Liam was one of the least popular names. In 2015,  Liam was more popular than Jacob. Same pattern is happening for girls names too. 

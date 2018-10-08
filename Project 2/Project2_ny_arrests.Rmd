@@ -1,0 +1,121 @@
+---
+title: "Project 2 - Dataset # 3"
+author: "J John"
+date: "Oct 10, 2018"
+output: html_document
+---
+I am using "Adult Arrests in NYS Beginning in 1970" dataset listed in  discussion board. 
+
+
+#### Load data
+```{r message = FALSE}
+require(tidyverse)
+ 
+```
+
+### Arrest Trend
+  
+ 
+    Arrests in NY went up from 1970 to late 1990's and peaked around 2010. Arrests have been going down since 2010. 
+    
+
+```{r read_file}
+arrest_data <- read.csv('ny_adults_arrests.csv')
+
+#Select the Year and Total
+total_arrests_by_year <- arrest_data %>% select(Year, Total)  %>% 
+                        group_by( Year )  %>% 
+                        group_by( Year, total_arrests = sum(Total)) 
+
+ggplot(total_arrests_by_year, aes(x= Year, y= total_arrests)) + geom_line()
+
+arrest_data_long <- arrest_data %>% 
+      select(-contains("Total"))  %>%   
+      gather(3:10, key = "Type", value = "Total")
+
+arrest_category_year <- arrest_data_long  %>% 
+  mutate(Type = str_extract(Type, "[^_]+$") ) %>% 
+  group_by(Year, Type)%>% 
+  group_by(Year, Type, total_arrests = sum(Total))
+```
+
+
+#### Felony vs Misdemeanor
+  
+  Same pattern as above is happening for felony and misdemeanor arrests.
+  
+  
+```{r}
+
+ggplot(data = arrest_category_year , aes(x = Year, y= total_arrests, color = Type)) + geom_line()
+
+
+```
+
+
+#### Arrests by Type
+
+  This shows arrests further broken down by types. 
+
+```{r arrests_by_type ,eval = TRUE}
+
+total_arrests_by_year_type <-  arrest_data_long %>% 
+   select(Year, Type, Total) %>%
+  group_by(Year,Type)  %>%
+  group_by(Year,  Type, total_arrests = sum(Total)) 
+
+# arrest further broken down by type
+ggplot(total_arrests_by_year_type, aes(x= Year, y= total_arrests, color=Type)) + geom_line()
+```
+
+
+#### Arrests by Type
+  
+  65 % of arrests are Misdemeanor and 35% are felony.
+
+```{r arrest_type}
+
+arrest_category <- arrest_data_long  %>% 
+  mutate(Type = str_extract(Type, "[^_]+$") ) %>% 
+  group_by( Type)%>% 
+  group_by( Type, total_arrests = sum(Total))
+ 
+arrest_num_summary <- summarise(arrest_category)
+
+#% of felony vs misd
+round((arrest_num_summary$total_arrests/ sum(arrest_num_summary$total_arrests) ) *100)
+
+ggplot(data = arrest_category , aes(x = Type, y= total_arrests, fill=Type)) +
+   geom_bar(stat="identity", position=position_dodge())
+
+total_arrests_by_type <-  arrest_data_long %>%
+          select( Type, Total) %>% 
+          group_by(Type) %>% 
+          group_by(Type, total_arrests = sum(Total)) 
+
+ggplot(total_arrests_by_type, aes(x= Type, y= total_arrests, fill = Type)) + 
+  geom_bar(stat="identity", position=position_dodge())
+
+```
+
+### Arrests by County
+   
+
+   This shows the number arrests by county. Number of arrests in NYC and surronding counties are higher than upstate NY. Better analaysis requires county population data.
+   
+   
+```{r s}
+
+
+total_county <- arrest_data_long %>%
+          select( County, Total) %>% 
+          group_by(County) %>% 
+          group_by(County, total_arrests = sum(Total)) 
+ggplot(total_county, aes(x= total_arrests, y= County)) + geom_point(shape=1)
+
+```
+
+Arrests in NY peaked around 2000.  Number of arrests have been going down since 2010. 
+35% of arrests are felony and 65% are misdemeanor.
+"DWI  felony" and  "other felony" arrests aren't down since 2010.
+Number of arrests in New York city and surrounding counties are higher than other counties. If we were look at arrests per 1000 people or arrests as percentage of people, I am sure that will make the numbers a lot closer.

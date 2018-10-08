@@ -1,0 +1,139 @@
+---
+title: "Project 2 - Dataset #1"
+author: "J John"
+date: "Oct 10, 2018"
+output: html_document
+---
+I am using  dataset "Accidents, Fatalities, and Rates, 1995 through 2014, U.S. General Aviation"
+
+    https://catalog.data.gov/dataset/accidents-fatalities-and-rates-1995-through-2014-u-s-general-aviation
+
+This dataset excludes some of the stats from 2011. 
+
+#### Load Package
+
+```{r, message = FALSE}
+library(tidyverse)
+require(stringr)
+```
+
+#### Load data and clean up
+
+```{r read_file}
+col_names <- c("year",'accidents_all',"accidents_fatal","fatalities_total", "fatalities_aboard","flight_hours",
+                "accidents_per_1000", "fatal_per_1000") ##, "non_fatal_accidents", "fatalities_us")
+lines <- readLines("aviation_incidents.csv", skip = 5 )
+
+#Write to temp file and read the file back.I could have used regex to split the lines as well. 
+temp_file <- tempfile()
+writeLines(lines[seq(7, 47, by = 1)], temp_file)
+
+#I had issues getting readr::read_csv fucntion to work so I have to parse those values. 
+# Column values are read as characters, so parse those as numbers.
+data <- read.csv(temp_file) 
+
+colnames(data) <- col_names
+
+data <- data%>%  
+        select(1:8)
+
+data <- data%>%
+        mutate(year = as.numeric(str_replace(year, ',','')))%>%
+        mutate(accidents_all = as.numeric(str_replace( accidents_all, ',','')))%>%
+        mutate(accidents_fatal = as.numeric(str_replace( accidents_fatal, ',','')))%>%
+        mutate(fatalities_total = as.numeric(str_replace( fatalities_total, ',','')))%>%
+        mutate(fatalities_aboard = as.numeric(str_replace( fatalities_aboard, ',','')))%>%
+        mutate(flight_hours = as.numeric(str_replace_all(flight_hours, ',','')))%>%
+        mutate(accidents_per_1000 = as.numeric(str_replace( accidents_per_1000, ',','')))%>%
+        mutate(fatal_per_1000 = as.numeric(str_replace( fatal_per_1000, ',','')))%>%
+        mutate(fatal_per_1000 = as.numeric(str_replace( fatal_per_1000, ',','')))%>%
+        mutate(non_fatal_accidents = accidents_all - accidents_fatal)%>%
+        mutate(fatalities_us =  fatalities_total-fatalities_aboard)%>%
+        mutate(accidents_fatal_per =  accidents_fatal/fatalities_total)%>%
+        mutate(non_fatal_accidents_per =  non_fatal_accidents/fatalities_total)
+```
+
+#### Tidying data. 
+ 
+```{r tidying_data}
+
+# Gather columns 2 to 10 as type and num.
+long_data <-  data %>% 
+              gather(2:12, key = "type", value = "num")
+
+```
+
+
+
+#### Us Aviation accidents/incidents
+
+   This shows the US aviation accidents from 1975-2014. Accidents have declined steadly over the years.
+   
+```{r analyze_incidents}
+
+incidents_type_year<- long_data %>%
+                      filter(type == "accidents_all") %>%
+                      select(year,type,num)  
+                      
+
+ggplot() + 
+  geom_line(data = incidents_type_year, aes(x = year, y = num, color = type))
+
+```
+
+### Fatal Vs Non Fatal 
+    
+      This shows fatal and non fatal accidents from 1975-2014.  Fatal and no fatal accidents have decliend over the years. 
+  
+```{r analyze_incidents_fatal_vs_non_fatal}
+
+analyze_incidents_fatal_vs_non_fatal<- long_data %>%
+                      filter(type == 'accidents_fatal'| 
+                            type == 'non_fatal_accidents') %>%
+                      select(year,type,num)  
+
+
+ggplot() + 
+  geom_line(data = analyze_incidents_fatal_vs_non_fatal, aes(x = year, y = num, color = type))
+
+
+
+```
+
+#### Fatal abroad vs fatal inland
+  
+    This shows fatalities aborad versus that occured in US. Most of the fatalities occured abroad. Fatal accidents in US is relativley low except few years. This excludes the events of 2011. 
+    
+```{r analyze_incidents_fatal_aboard_Vs_us}
+
+analyze_incidents_fatal_aboard_Vs_us<- long_data %>%
+                      filter(type == 'fatalities_us'| 
+                            type == 'fatalities_aboard') %>%
+                      select(year,type,num)  
+                      
+
+ggplot() + 
+  geom_line(data = analyze_incidents_fatal_aboard_Vs_us, aes(x = year, y = num, color = type))
+
+
+```
+
+```{r analyze_incidents_per_1000}
+
+analyze_incidents_per_1000<- long_data %>%
+                      filter(type == 'accidents_per_1000'| 
+                            type == 'fatal_per_1000') %>%
+                      select(year,type,num)  
+                      
+
+ggplot() + 
+  geom_line(data = analyze_incidents_per_1000, aes(x = year, y = num, color = type))
+
+
+```
+
+US general aviation has gotten a lot safer since the 1980s, excluding events occurred in 2001.  Incidents/accidents have been going down since the 80's. Most of the fatalities involving US airlines happened abroad.  Fatalities inside US, even going back to 80's , is relatively low.  Plotting incidents for every 1000 mile flown shows the same pattern. 
+
+
+
+

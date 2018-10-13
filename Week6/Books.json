@@ -1,0 +1,24 @@
+{
+	"Books": {
+		"Book": [
+			{
+				"name": "An Absolutely Remarkable Thing: A Novel",
+				"author": "Hank Green",
+				"genre": "Fiction, Fantasy",
+				"pages": "352"
+			},
+			{
+				"name": "Transcription: A Novel",
+				"author": "Kate Atkinson",
+				"genre": "Thriller,Military",
+				"pages": "352"
+			},
+			{
+				"name": "The Talisman",
+				"author": "Stephen King,Peter Straub",
+				"genre": "Suspense, Horror",
+				"pages": "921"
+			}
+		]
+	}
+}

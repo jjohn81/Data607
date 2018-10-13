@@ -1,0 +1,20 @@
+<Books>
+<Book>
+	<name>An Absolutely Remarkable Thing: A Novel</name>
+	<author>Hank Green</author>
+	<genre>Fiction, Fantasy</genre>
+	<pages> 352</pages>
+</Book>
+<Book>
+	<name>Transcription: A Novel</name>
+	<author>Kate Atkinson</author>
+	<genre>Thriller,Military</genre>
+	<pages>352</pages>
+</Book>
+<Book>
+	<name>The Talisman</name>
+	<author>Stephen King,Peter Straub</author>
+	<genre>Suspense, Horror</genre>
+	<pages>921</pages>
+</Book>
+</Books>    

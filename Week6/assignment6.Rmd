@@ -1,0 +1,93 @@
+---
+title: "File Formats"
+author: "J John"
+date: "Oct 13, 2018"
+output:
+  
+  html_document:
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+```{r setup, include=FALSE, echo= FALSE}
+library(XML)
+library(rvest)
+library(jsonlite)
+library(plyr)
+```
+
+#### XML file
+Read xml file from github.In this file mutliple authors are listed as coma separated. 
+
+```{r }
+xml_url <-"https://raw.githubusercontent.com/jjohn81/Data607/master/Week6/Books.xml"
+xml_data <- read_xml(xml_url) %>% xmlParse()
+xml_data
+xml_df <- xmlToDataFrame(xml_data)
+xml_df
+```
+
+#### XML file
+Read xml file from github. In this file authors are listed as elements.'xmlToDataFrame' cant parse this xml.
+
+```{r }
+xml_url <-"https://raw.githubusercontent.com/jjohn81/Data607/master/Week6/Books_muli_authors_element.xml"
+
+
+xml_data <- read_xml(xml_url) %>% xmlParse()
+xml_data
+#using plyr moethod. This method creates two columns for authors. 
+xml_df_plyr <- ldply(xmlToList(xml_data), data.frame)
+xml_df_plyr
+```
+
+#### XML file
+Read xml file from github. In this file authors are listed in "Authors" node. Dataframe structure depneds on the method used. 
+```{r }
+xml_url <-"https://raw.githubusercontent.com/jjohn81/Data607/master/Week6/Books_authors_node.xml"
+xml_data <- read_xml(xml_url) %>% xmlParse()
+xml_data
+#Multiple authors are listed under "Authors" column.
+xml_df <- xmlToDataFrame(xml_data)
+xml_df
+#This creates two columns for authors, Authors.author and Authors.author1
+xml_df <- ldply(xmlToList(xml_data), data.frame)
+xml_df
+```
+
+#### Html Table
+ Read html file from github.
+
+```{r html}
+
+html_url <- "https://raw.githubusercontent.com/jjohn81/Data607/master/Week6/Books.html"
+html_data <- read_html(html_url) %>% html_node("table")
+html_data
+html_df <-as.data.frame( html_table(html_data,fill=TRUE))
+html_df
+
+```
+
+#### JSON 
+ Read JSON file from github. In this file mutliple authors are listed as coma separated. 
+```{r json}
+json_url <-"https://raw.githubusercontent.com/jjohn81/Data607/master/Week6/Books.json"
+json_data <- read_json(json_url)
+json_data
+json_df <-fromJSON(json_url)
+json_df
+
+```
+ Read JSON file from github. In this file mutliple authors. 
+```{r }
+json_url <-"https://raw.githubusercontent.com/jjohn81/Data607/master/Week6/books_authors.json"
+json_data <- read_json(json_url)
+json_data
+# creates two author columns. 
+json_df <-fromJSON(json_url)
+json_df
+
+```
+
+HTML tables are for displaying data while XML and JSON formats are used for storing and transporting data. JSON is lightweight and easy to parse whereas XML is verbose and difficult to parse. Data frame structure depends on the parser/method used. For example, nested authors node might be stored as a data frame column with comma separated names/names concatenated or as multiple columns .

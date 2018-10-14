@@ -1,13 +1,17 @@
 <Books>
 <Book>
 	<name>An Absolutely Remarkable Thing: A Novel</name>
+	<Authors>
 	<author>Hank Green</author>
+	</Authors>
 	<genre>Fiction, Fantasy</genre>
 	<pages> 352</pages>
 </Book>
 <Book>
 	<name>Transcription: A Novel</name>
+	<Authors>
 	<author>Kate Atkinson</author>
+	</Authors>
 	<genre>Thriller,Military</genre>
 	<pages>352</pages>
 </Book>

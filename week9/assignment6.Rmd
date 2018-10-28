@@ -1,0 +1,40 @@
+---
+title: "NYT API"
+author: "J John"
+date: "Oct 27, 2018"
+output:
+  
+  html_document:
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+```{r setup, include=FALSE, echo= FALSE }
+require(httr)
+require(jsonlite)
+require(tidyr)
+require(dplyr)
+require(stringr)
+require(kableExtra)
+param <- list('api-key' = '')
+```
+
+#### Call NY Times API, parse the results and display it in a table.
+
+```{r }
+url <- 'https://api.nytimes.com/svc/topstories/v2/home.json'
+response<- httr::GET(url, query = param) 
+content<-content(response, as='text') %>%
+  fromJSON() %>%
+  as.data.frame()%>%
+  mutate(title = cell_spec(results.title , "html", link = results.short_url))%>%
+  mutate(published_date = str_replace( results.published_date,'T',' ')) %>%
+  select(results.section, title, results.abstract,results.byline,published_date )
+
+names(content)<- c('Section','Title', 'Abstract', "By", 'Published Date')
+
+
+kable(content,escape = FALSE)%>% kable_styling(bootstrap_options = c("striped", "hover",'condensed') )
+
+```

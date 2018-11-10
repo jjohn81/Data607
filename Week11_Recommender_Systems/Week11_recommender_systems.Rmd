@@ -1,0 +1,45 @@
+---
+title: "Data 607 week 11 - Recommender Systems"
+author: "Joby John"
+date: "11/3/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Recommender System : Amazon 
+
+Amazon probably has one of the best recommendation systems of all US retailers. These recommendations are based on the order and search history. 
+
+
+**Target Users: Amazon customers**
+
+Customers get exposed to new products otherwise they wouldn't know about. We have bought many items based on these, but at times these recommendations are way off. They also raise privacy concerns. I have seen items recommend that has nothing to do with my search and order history. 
+
+![](Rec1.png)
+
+
+
+
+**Business case : Amazon**
+
+  Exposes customers to new products and expects customers to buy items otherwise they wouldn't have. If they could increase sales by 1 percentage, they are looking at 100s of millions of dollars.  They are also using these to sell/display advertising. Amazon's digital advertising business is one of the fastest growing in US. Amazon U.S. ad revenue is expected to more than double this year, to $4.61 billion. 
+![](Ads.png)
+ 
+
+**Improvements**
+
+Amazon's recommendation system probably uses user reviews and other users order history to recommended items to buyers.  There are a lot of inaccurate reviews on amazon. I am always suspicious of 1 and 5-star reviews. Are there any reviews that are posted by sellers that inaccurately inflate average system? I would design a weighted system that gives more weight to people who purchased items they reviewed. The system also should take in to account their review and order history. 
+
+![](Ratings.png)
+
+
+
+References
+
+Amazon digital ads
+https://variety.com/2018/digital/news/amazon-us-digital-ad-revenue-google-facebook-1202947923/
+
+

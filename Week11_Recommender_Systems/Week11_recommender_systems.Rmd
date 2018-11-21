@@ -18,7 +18,7 @@ Amazon probably has one of the best recommendation systems of all US retailers. 
 
 Customers get exposed to new products otherwise they wouldn't know about. We have bought many items based on these, but at times these recommendations are way off. They also raise privacy concerns. I have seen items recommend that has nothing to do with my search and order history. 
 
-![](Rec1.png)
+e
 
 
 

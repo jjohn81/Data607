@@ -1,0 +1,86 @@
+---
+title: "Mongo DB"
+author: "J John"
+date: "Nov 11, 2018"
+output:
+  
+  html_document:
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+```{r setup, include=FALSE, echo= FALSE }
+require(tidyr)
+require(dplyr)
+require(mongolite)
+library(RMySQL)
+```
+
+#### Mongo Db.
+I am using my sql database created  for project #3 and bulk inserting records to a new mongo db.
+I wanted to use neo4j for this, but I ran into problems with  neo4j  R package.
+
+### Read Data from project 3 database
+```{r }
+con = dbConnect(MySQL(), user='data607p3', password='data607p3', dbname='job_skills', host='localhost')
+
+
+jobs_db <- dbReadTable(con, 'jobs')
+skills_db<- dbReadTable(con, 'skills')
+job_skills_db<- dbReadTable(con, 'job_skills')
+
+# Join tables to get skills for jobs. 
+job_skills_db <- jobs_db %>%
+  inner_join(job_skills_db )%>%
+  inner_join(skills_db ) 
+
+nrow(job_skills_db)
+```
+### Create new collection called DATA607 and insert data.
+```{r}
+data607 <- mongo("DATA607")
+data607$insert(job_skills_db)
+
+```
+### Number of records inserted.
+```{r}
+# number of documents 
+data607$count()
+# number of rows from my sql db
+nrow(job_skills_db)
+```
+### Select everything where skill name is r
+```{r}
+
+rskills <- data607$find('{"skill_name" : "r"}')
+head(rskills)
+
+```
+
+### Select 50 job names and skill names where job name is 'data scientest'.
+```{r}
+
+test <- data607$find(
+  query = '{ "job_name" : "data scientist" }', 
+  fields = '{"job_name" : true, "skill_name" : true}',
+  limit = 50
+)
+
+```
+
+
+Below are some of the pros and cons of sql and no sql databases. 
+
+###SQL
+    Predefined schemas and all of your data must follow the same structure. 
+    changing  structure would be both difficult and disruptive.
+    vertically scalable.
+    Good for highly transactional systems.
+
+###NoSQL
+    Dynamic schema:  flexibility to change your data schema without modifying any of your existing data.
+    Scalability: MongoDB is horizontally scalable.
+    Flexibility: You can add new columns or fields on MongoDB without affecting existing rows or application          performance.
+    Each document can have its own unique structure.
+    No expensive joins
